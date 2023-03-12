@@ -73,7 +73,6 @@ function DeleteInfo() {
   }); 
 }
 
-
 //Pages----------------------------------------------------------------------------
 app.get("/", (req, res) => { 
   DeleteTemp();
@@ -87,12 +86,52 @@ app.get("/About", (req, res) => {
 
 app.get("/Archive", (req, res) => { 
   DeleteTemp();
-  db.all("SELECT * FROM Images", (err, rows) => {
+
+  var Images = [];
+  var Lables = [];
+
+  fs.readdir('./ArchiveImage/', (err, files) => {
+    if (err) throw err;
+    for (const file of files) {
+      fs.unlink(path.join('./ArchiveImage/', file), (err) => {
+        if (err) throw err;
+      });
+    }
+  });
+
+
+  db.all("SELECT * FROM Image", (err, rows) => {
     if (err) {console.error(err.message);}
-    const imageFormat = "jpg";
+
+    rows.forEach((row) => {
+      fs.writeFileSync("ArchiveImage/" + row.ImageName, row.Image,"binary",(err) => {
+        if (err) {console.error(err.message);}
+      });
+
+      
+      fs.readdirSync('./ArchiveImage/').forEach(file => {
+        let info = {filename: file, fileloc: './Archive/' + file, Boxloc: './Archive/Box' + file};
+        Images.push(info)
+      });
+
+      fs.writeFileSync("ArchiveImage/Box" + row.ImageName, row.ImageObject,"binary",(err) => {
+        if (err) {console.error(err.message);}
+      });
+
+    });  
+  });
+
+  db.all("SELECT * FROM Label", (err, rows) => {
+    if (err) {console.error(err.message);}
+    rows.forEach((row) => {
+      let L = {Lable: row.Lable, Confidence: row.Confidence, ImageName: row.ImageName}
+      Lables.push(L)
+    })
   })
-  res.render("Archive");
+
+  res.render("Archive", { ImageArray: Images, LableArray: Lables});
 });
+
 
 app.get("/comments", (req, res) => { 
   DeleteTemp();
