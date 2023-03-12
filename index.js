@@ -10,6 +10,7 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static("public"));
 app.use("/Temp/", express.static("./Temp"));
+app.use("/ArchiveImage/", express.static("./ArchiveImage"));
 
 //functions------------------------------------------------------------------------
 var Animals = ReadAnimals();
@@ -87,9 +88,6 @@ app.get("/About", (req, res) => {
 app.get("/Archive", (req, res) => { 
   DeleteTemp();
 
-  var Images = [];
-  var Lables = [];
-
   fs.readdir('./ArchiveImage/', (err, files) => {
     if (err) throw err;
     for (const file of files) {
@@ -99,6 +97,7 @@ app.get("/Archive", (req, res) => {
     }
   });
 
+  
 
   db.all("SELECT * FROM Image", (err, rows) => {
     if (err) {console.error(err.message);}
@@ -108,28 +107,34 @@ app.get("/Archive", (req, res) => {
         if (err) {console.error(err.message);}
       });
 
-      
-      fs.readdirSync('./ArchiveImage/').forEach(file => {
-        let info = {filename: file, fileloc: './Archive/' + file, Boxloc: './Archive/Box' + file};
-        Images.push(info)
-      });
-
       fs.writeFileSync("ArchiveImage/Box" + row.ImageName, row.ImageObject,"binary",(err) => {
         if (err) {console.error(err.message);}
       });
-
     });  
+  });
+
+  Images = [];
+  Lables = [];
+
+  fs.readdirSync('./ArchiveImage/').forEach(file => {
+    if(!file.includes("Box")){
+      let info = {filename: file, fileloc: './ArchiveImage/' + file, Boxloc: './ArchiveImage/Box' + file};
+      Images.push(info)
+    }
   });
 
   db.all("SELECT * FROM Label", (err, rows) => {
     if (err) {console.error(err.message);}
     rows.forEach((row) => {
-      let L = {Lable: row.Lable, Confidence: row.Confidence, ImageName: row.ImageName}
-      Lables.push(L)
-    })
-  })
+      let Lay = {Lable: row.Label, Confidence: row.Confidence, ImageName: row.ImageName};
+      Lables.push(Lay)
+    });
+  });
 
-  res.render("Archive", { ImageArray: Images, LableArray: Lables});
+  console.log(Lables)
+
+  res.render("Archive", {ImageArray: Images, LableArray: Lables});
+
 });
 
 
@@ -168,14 +173,12 @@ app.get("/Results", (req, res) => {
   newfiles = filesdif.length;
   diffiles = newfiles - orgiinalfilelength
   wrongfiles = Math.abs(diffiles - orgiinalfilelength)
-  console.log(wrongfiles)
-  console.log(filesdif.length)
 
   var message = null;
   if(wrongfiles != 0){
     message = "There where "+wrongfiles+" Image that did not contain Animals";
   }
-  console.log(showfiles)
+
   res.render("Results", { Boximage: showfiles, errormes: message});
 });
 //API------------------------------------------------------------------------------
