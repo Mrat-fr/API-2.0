@@ -42,6 +42,19 @@ function DeleteTemp(){
     }
   });
 }
+
+function DeleteArchive(){
+  fs.readdir('./ArchiveImage/', (err, files) => {
+    if (err) throw err;
+
+    for (const file of files) {
+      fs.unlink(path.join('./ArchiveImage/', file), (err) => {
+        if (err) throw err;
+      });
+    }
+  });
+}
+
 //storage--------------------------------------------------------------------------
 const multer = require('multer');
 const storage = multer.diskStorage({
@@ -72,13 +85,25 @@ function DeleteInfo() {
   db.run("DELETE FROM Label",function (err) {
     if (err){return console.log(err.message);}
   }); 
+  db.run("UPDATE sqlite_sequence SET seq = '0' WHERE name = 'Image'",function (err) {
+    if (err){return console.log(err.message);}
+  }); 
+  db.run("UPDATE sqlite_sequence SET seq = '0' WHERE name = 'Label'",function (err) {
+    if (err){return console.log(err.message);}
+  }); 
 }
-//DeleteInfo() 
 
 //Pages----------------------------------------------------------------------------
 app.get("/", (req, res) => { 
   DeleteTemp();
   res.render("MainPage");
+});
+
+app.get("/clear", (req, res) => { 
+  DeleteInfo();
+  DeleteTemp();
+  DeleteArchive();
+  res.redirect("/");
 });
 
 app.get("/About", (req, res) => { 
@@ -111,7 +136,7 @@ app.get("/Archive", (req, res) => {
       fs.writeFileSync("ArchiveImage/Box" + row.ImageName, row.ImageObject,"binary",(err) => {
         if (err) {console.error(err.message);}
       });
-    });  
+    });
   });
 
   Images = [];

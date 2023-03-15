@@ -26,9 +26,10 @@
 
     data.forEach((image) => {
 
-        lables = []
+        fname = image.filename;
+        lables = [];
         lablearray.forEach((lable) => {
-            if(image.filename == lable.ImageName){
+            if(lable.ImageName.includes(fname)){
                 lables.push(lable.Lable + " " + lable.Confidence + "%" )
             }
         });
