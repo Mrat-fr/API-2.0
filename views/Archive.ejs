@@ -2,7 +2,7 @@
 <h2 style="text-align: center">Archive</h2>
 
 <% ImageArray.forEach(function(Image) {  %>
-    <img id="myImg" class="center" width="500" height="500" src="<%=Image.fileloc%>" alt="<%=Image.filename%>"/>
+  <img id="myImg" class="center" width="500" height="500" src="<%=Image.fileloc%>" alt="<%=Image.filename%>"/>
 <% }); %>
 
 
@@ -15,20 +15,22 @@
 <%- include('Footer'); %>
 
 <script>
-    var modal = document.getElementById("myModal");
-    var img = document.getElementById("myImg");
-    var modalImg = document.getElementById("img01");
-    var captionText = document.getElementById("caption");
+  var modal = document.getElementById("myModal");
+  var img = document.getElementById("myImg");
+  var modalImg = document.getElementById("img01");
+  var captionText = document.getElementById("caption");
 
-    img.onclick = function(){
-      modal.style.display = "block";
-      modalImg.src = this.src;
-      captionText.innerHTML = this.alt;
-    }
-    
-    var span = document.getElementsByClassName("close")[0];
-    
-    span.onclick = function() { 
-      modal.style.display = "none";
-    }
-    </script>
+  var lables
+
+  img.onclick = function(){
+    modal.style.display = "block";
+    modalImg.src = "./ArchiveImage/Box"+ this.alt;
+    captionText.innerHTML = this.alt;
+  }
+  
+  var span = document.getElementsByClassName("close")[0];
+  
+  span.onclick = function() { 
+    modal.style.display = "none";
+  }
+</script>

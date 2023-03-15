@@ -73,6 +73,7 @@ function DeleteInfo() {
     if (err){return console.log(err.message);}
   }); 
 }
+//DeleteInfo() 
 
 //Pages----------------------------------------------------------------------------
 app.get("/", (req, res) => { 
@@ -88,7 +89,7 @@ app.get("/About", (req, res) => {
 app.get("/Archive", (req, res) => { 
   DeleteTemp();
 
-  fs.readdir('./ArchiveImage/', (err, files) => {
+  fs.readdirSync('./ArchiveImage/', (err, files) => {
     if (err) throw err;
     for (const file of files) {
       fs.unlink(path.join('./ArchiveImage/', file), (err) => {
@@ -114,7 +115,6 @@ app.get("/Archive", (req, res) => {
   });
 
   Images = [];
-  Lables = [];
 
   fs.readdirSync('./ArchiveImage/').forEach(file => {
     if(!file.includes("Box")){
@@ -123,17 +123,20 @@ app.get("/Archive", (req, res) => {
     }
   });
 
+
   db.all("SELECT * FROM Label", (err, rows) => {
     if (err) {console.error(err.message);}
-    rows.forEach((row) => {
-      let Lay = {Lable: row.Label, Confidence: row.Confidence, ImageName: row.ImageName};
-      Lables.push(Lay)
+    var Lables = [];
+
+    rows.forEach(row => {
+      var Lay = {Lable: row.Label, Confidence: row.Confidence, ImageName: row.ImageName};
+      Lables.push(Lay);
     });
+
+    res.render("testAr", {ImageArray: Images, LableArray: Lables});
   });
 
-  console.log(Lables)
 
-  res.render("Archive", {ImageArray: Images, LableArray: Lables});
 
 });
 
@@ -146,6 +149,7 @@ app.get("/comments", (req, res) => {
 var orgiinalfilelength = 0;
 app.post("/upload", upload.array("filetoupload") ,(req, res) => { 
   var files = ReadTemp();
+  orgiinalfilelength = files.length;
 
   files.forEach((file) => {
     localizeObjects(file);
@@ -155,8 +159,6 @@ app.post("/upload", upload.array("filetoupload") ,(req, res) => {
     labelDetection(file)
   });
 
-  console.log(files.length)
-  orgiinalfilelength = files.length;
   res.render("upload");
 });
 
@@ -178,6 +180,21 @@ app.get("/Results", (req, res) => {
   if(wrongfiles != 0){
     message = "There where "+wrongfiles+" Image that did not contain Animals";
   }
+
+  filesdif.forEach((file) => {
+    bname = "Box" + file.filename;
+    fname = file.filename;
+    if (!fname.includes("Box")){
+      const simage = fs.readFileSync(file.fileloc);
+      const simageBuffer = Buffer.from(simage, "binary");
+      const sobjectloc = './Temp/Box' + file.filename;
+      const simageo = fs.readFileSync(sobjectloc);
+      const simageBuffero = Buffer.from(simageo, "binary");
+      db.run("INSERT INTO Image (Image, ImageObject, ImageName) VALUES (?, ?, ?)",[simageBuffer,simageBuffero,file.filename],function (err) {
+        if (err){return console.log(err.message);}
+      });  
+    }
+  });
 
   res.render("Results", { Boximage: showfiles, errormes: message});
 });
@@ -211,6 +228,7 @@ async function localizeObjects(file) {
 
   found = objectlable.some((r) => Animals.indexOf(r) >= 0);
   if (found === false) {
+    fs.unlinkSync(file.fileloc)
     return;
   }
 
@@ -256,13 +274,4 @@ async function labelDetection(file) {
   labels.forEach((label) => {
     db.run("INSERT INTO Label (Label, Confidence, ImageName) VALUES (?, ?, ?)",[label.description,Math.round(label.score * 100),file.filename])
   })
-
-  const simage = fs.readFileSync(file.fileloc);
-  const simageBuffer = Buffer.from(simage, "binary");
-  const sobjectloc = './Temp/Box' + file.filename;
-  const simageo = fs.readFileSync(sobjectloc);
-  const simageBuffero = Buffer.from(simageo, "binary");
-  db.run("INSERT INTO Image (Image, ImageObject, ImageName) VALUES (?, ?, ?)",[simageBuffer,simageBuffero,file.filename],function (err) {
-    if (err){return console.log(err.message);}
-  });  
 }
