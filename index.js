@@ -3,6 +3,7 @@ const app = express();
 const path = require("path");
 const fs = require('fs');
 const { createCanvas, loadImage } = require("canvas");
+require('dotenv').config();
 
 app.listen(4000, process.env.IP, function(){console.log(`Server is running on port 4000`);});
 app.use(express.urlencoded({ extended: false }));
@@ -226,7 +227,18 @@ app.get("/Results", (req, res) => {
 //API------------------------------------------------------------------------------
 const vision = require("@google-cloud/vision");
 
-const client = new vision.ImageAnnotatorClient({ keyFilename: "key.json" });
+const client = new vision.ImageAnnotatorClient({
+  type:  process.env.type,
+  project_id:  process.env.project_id,
+  private_key_id:  process.env.private_key_id,
+  private_key:  process.env.private_key,
+  client_email:  process.env.client_email,
+  client_id:  process.env.client_id,
+  auth_uri:  process.env.auth_uri,
+  token_uri:  process.env.token_uri,
+  auth_provider_x509_cert_url:  process.env.auth_provider_x509_cert_url,
+  client_x509_cert_url:  process.env.client_x509_cert_url,
+});
 
 async function localizeObjects(file) {
   const request = { image: { content: fs.readFileSync(file.fileloc) } };
