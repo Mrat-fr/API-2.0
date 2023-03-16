@@ -158,7 +158,7 @@ app.get("/Archive", (req, res) => {
       Lables.push(Lay);
     });
 
-    res.render("testAr", {ImageArray: Images, LableArray: Lables});
+    res.render("Archive", {ImageArray: Images, LableArray: Lables});
   });
 
 
