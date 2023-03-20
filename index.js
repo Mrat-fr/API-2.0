@@ -161,9 +161,6 @@ app.get("/Archive", (req, res) => {
 
     res.render("Archive", {ImageArray: Images, LableArray: Lables});
   });
-
-
-
 });
 
 
@@ -188,19 +185,20 @@ app.post("/upload", upload.array("filetoupload") ,(req, res) => {
   res.render("upload");
 });
 
+
 app.get("/Results", (req, res) => { 
   var filesdif = ReadTemp();
+  var apifile = 0;
   showfiles = [];
   filesdif.forEach((file) => {
     fname = file.filename;
     if (fname.includes("Box")){
       showfiles.push(file.fileloc)
+      apifile++;
     }
   });
 
-  newfiles = filesdif.length;
-  diffiles = newfiles - orgiinalfilelength
-  wrongfiles = Math.abs(diffiles - orgiinalfilelength)
+  wrongfiles = Math.abs(apifile - orgiinalfilelength)
 
   var message = null;
   if(wrongfiles != 0){
@@ -251,16 +249,17 @@ async function localizeObjects(file) {
   var objectdetails = [];
 
   objects.forEach((object) => {
-    coordinates = [];
-    const vertices = object.boundingPoly.normalizedVertices;
-
-    vertices.forEach((v) => coordinates.push(v.x * 1, v.y * 1));
-
-    objectlable.push(object.name);
-
-    let cobject = {name: object.name, coord1x: coordinates[0], coord1y: coordinates[1], coord2x: coordinates[2], coord2y: coordinates[3], coord3x: coordinates[4], coord3y: coordinates[5], coord4x: coordinates[6], coord4y: coordinates[7],};
-
-    objectdetails.push(cobject);
+    if (Animals.indexOf(object.name) > -1) {
+      coordinates = [];
+      const vertices = object.boundingPoly.normalizedVertices;
+      vertices.forEach((v) => coordinates.push(v.x * 1, v.y * 1));
+      objectlable.push(object.name);
+      let cobject = {name: object.name, coord1x: coordinates[0], coord1y: coordinates[1], coord2x: coordinates[2], coord2y: coordinates[3], coord3x: coordinates[4], coord3y: coordinates[5], coord4x: coordinates[6], coord4y: coordinates[7],};
+      objectdetails.push(cobject);
+    } else {
+      return;
+    }
+    
   });
 
   found = objectlable.some((r) => Animals.indexOf(r) >= 0);

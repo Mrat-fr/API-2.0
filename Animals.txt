@@ -1,3 +1,4 @@
+Animal
 Aardvark
 African Elephant
 African Tree Pangolin
