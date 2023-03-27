@@ -142,12 +142,7 @@ app.get("/Archive", (req, res) => {
 
   Images = [];
 
-  fs.readdirSync('./ArchiveImage/').forEach(file => {
-    if(!file.includes("Box")){
-      let info = {filename: file, fileloc: './ArchiveImage/' + file, Boxloc: './ArchiveImage/Box' + file};
-      Images.push(info)
-    }
-  });
+  
 
 
   db.all("SELECT * FROM Label", (err, rows) => {
@@ -159,6 +154,12 @@ app.get("/Archive", (req, res) => {
       Lables.push(Lay);
     });
 
+    fs.readdirSync('./ArchiveImage/').forEach(file => {
+      if(!file.includes("Box")){
+        let info = {filename: file, fileloc: './ArchiveImage/' + file, Boxloc: './ArchiveImage/Box' + file};
+        Images.push(info)
+      }
+    });
     res.render("Archive", {ImageArray: Images, LableArray: Lables});
   });
 });
@@ -170,7 +171,8 @@ app.get("/comments", (req, res) => {
 });
 
 var orgiinalfilelength = 0;
-app.post("/upload", upload.array("filetoupload") ,(req, res) => { 
+app.post("/upload", upload.array("filetoupload") ,(req, res) => {
+  
   var files = ReadTemp();
   orgiinalfilelength = files.length;
 
@@ -230,12 +232,6 @@ const client = new vision.ImageAnnotatorClient({
   project_id:  process.env.project_id,
   private_key_id:  process.env.private_key_id,
   private_key:  process.env.private_key,
-  client_email:  process.env.client_email,
-  client_id:  process.env.client_id,
-  auth_uri:  process.env.auth_uri,
-  token_uri:  process.env.token_uri,
-  auth_provider_x509_cert_url:  process.env.auth_provider_x509_cert_url,
-  client_x509_cert_url:  process.env.client_x509_cert_url,
 });
 
 async function localizeObjects(file) {
