@@ -27,6 +27,25 @@
     color: #aaa;
 }
 
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.background-image{
+    background-image: url('./back.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+}
+
 /*Archive*/
 #myImg {
     border-radius: 5px;

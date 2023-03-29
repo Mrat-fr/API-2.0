@@ -1,0 +1,50 @@
+<%- include('Nav'); %>
+
+<img src="logo.png" alt="Bootstrap" width="100vh" height="230" class="center">
+<p class="text-center font-weight-bold">Welcome to Glaze <br> Quick way to identify Animals in images</p>
+
+<form action="/upload" method="post" enctype="multipart/form-data">
+
+    <div class="input-group">
+        <input type="file" class="form-control-file " id="filetoupload" name="filetoupload" id="filetoupload" multiple accept="image/jpeg, image/png/image/jpg">
+        <button class="btn btn-success" type="submit" id="inputGroupFileAddon04">Upload</button>
+    </div>
+    
+    <div class="image-preview" id="imagePreview">
+        <img src="" alt="Image Preview" class="image-preview_image">
+        <span class="image-preview_default"></span>
+    </div>      
+
+</form>
+
+<%- include('Footer'); %>
+
+<script>
+    const fileInput = document.getElementById("filetoupload");
+    const previewContainer = document.getElementById("imagePreview");
+    const previewImage = previewContainer.querySelector(".image-preview_image");
+    const previewDefaultText = previewContainer.querySelector(".image-preview_default");
+
+    fileInput.addEventListener("change", function() {
+    const files = this.files;
+    console.log(files.length)
+    if (files) {
+    previewContainer.innerHTML = "";
+    Array.from(files).forEach((file) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", function() {
+        const image = new Image();
+        image.src = this.result;
+        image.classList.add("image-preview_image");
+        previewContainer.appendChild(image);
+    });
+    reader.readAsDataURL(file);
+    });
+    } else {
+    previewImage.style.display = null;
+    previewImage.src = "";
+    previewDefaultText.style.display = null;
+    }
+    });
+
+</script>

@@ -97,7 +97,7 @@ function DeleteInfo() {
 //Pages----------------------------------------------------------------------------
 app.get("/", (req, res) => { 
   DeleteTemp();
-  res.render("MainPage");
+  res.render("Homepage");
 });
 
 app.get("/clear", (req, res) => { 
