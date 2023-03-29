@@ -227,12 +227,7 @@ app.get("/Results", (req, res) => {
 //API------------------------------------------------------------------------------
 const vision = require("@google-cloud/vision");
 
-const client = new vision.ImageAnnotatorClient({
-  type:  process.env.type,
-  project_id:  process.env.project_id,
-  private_key_id:  process.env.private_key_id,
-  private_key:  process.env.private_key,
-});
+const client = new vision.ImageAnnotatorClient({ keyFilename: "key.json" });
 
 async function localizeObjects(file) {
   const request = { image: { content: fs.readFileSync(file.fileloc) } };
